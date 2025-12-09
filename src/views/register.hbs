@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đăng ký</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 16px;
+      padding: 24px 24px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+      border: 1px solid #1e293b;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    p.sub {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+      color: #cbd5f5;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb55;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 0;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      min-height: 1.1em;
+    }
+
+    .message.error {
+      color: #f97373;
+    }
+
+    .message.success {
+      color: #4ade80;
+    }
+
+    .token-box {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #020617;
+      border: 1px dashed #374151;
+      font-size: 0.78rem;
+      word-break: break-all;
+      color: #9ca3af;
+      max-height: 150px;
+      overflow: auto;
+    }
+
+    .link {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .link a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Đăng ký</h1>
+    <p class="sub">Tạo tài khoản mới để nhận token JWT.</p>
+
+    <form id="register-form">
+      <div class="field">
+        <label for="name">Tên hiển thị</label>
+        <input id="name" name="name" type="text" placeholder="VD: Name123" required />
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Mật khẩu</label>
+        <input id="password" name="password" type="password" placeholder="Nhập mật khẩu" required />
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Xác nhận mật khẩu</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu" required />
+      </div>
+
+      <button type="submit">Đăng ký</button>
+    </form>
+
+    <div id="message" class="message"></div>
+    <div id="token-box" class="token-box" style="display: none;"></div>
+
+    <div class="link">
+      Đã có tài khoản? <a href="/login">Đăng nhập</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const messageEl = document.getElementById('message');
+    const tokenBox = document.getElementById('token-box');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      messageEl.className = 'message';
+      tokenBox.style.display = 'none';
+      tokenBox.textContent = '';
+
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+
+      // Client-side validation cho khớp với backend
+
+      if (!name || !email || !password) {
+        messageEl.textContent = 'vui lòng điền đầy đủ thông tin';
+        messageEl.classList.add('error');
+        return;
+      }
+
+      if (password.length < 6) {
+        messageEl.textContent = 'Mật khẩu phải có ít nhất 6 ký tự';
+        messageEl.classList.add('error');
+        return;
+      }
+
+      const emailRegex = /\S+@\S+\.\S+/;
+      if (!emailRegex.test(email)) {
+        messageEl.textContent = 'Email không hợp lệ';
+        messageEl.classList.add('error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        messageEl.textContent = 'Mật khẩu xác nhận không khớp';
+        messageEl.classList.add('error');
+        return;
+      }
+
+      const payload = { name, email, password, confirmPassword };
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          messageEl.textContent = data.message || 'Đăng ký thất bại';
+          messageEl.classList.add('error');
+          return;
+        }
+
+        messageEl.textContent = data.message || 'Đăng ký thành công';
+        messageEl.classList.add('success');
+
+        if (data.token) {
+          tokenBox.style.display = 'block';
+          tokenBox.textContent = 'Token: ' + data.token;
+        }
+      } catch (err) {
+        console.error(err);
+        messageEl.textContent = 'Lỗi kết nối tới server.';
+        messageEl.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>
