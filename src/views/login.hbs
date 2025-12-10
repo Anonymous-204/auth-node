@@ -207,12 +207,12 @@
         messageEl.textContent = data.message || 'Đăng nhập thành công';
         messageEl.classList.add('success');
 
-        if (data.accessToken) {// Hiển thị token
+        if (data.token) {// Hiển thị token
           tokenBox.style.display = 'block';
           tokenBox.textContent = 'Token: ' + data.token;
           // ví dụ: lưu token vào localStorage nếu cần
           localStorage.setItem('token', data.token);
-          window.location.href = '/';
+          window.location.href = './';
         }
       } catch (err) {
         console.error(err);
