@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const route = require('./routes');
-const auth = require('./controllers/authController');
+
 const connect = require('./config/db');
 connect();
 
@@ -14,7 +14,8 @@ dotenv.config();
 
 // middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Đọc JSON body (Postman, fetch, axios,...)
+app.use(express.urlencoded({ extended: true })); // Đọc form HTML (application/x-www-form-urlencoded)
 
 // đăng ký handlebars
 app.engine('hbs', hbs.engine({
@@ -27,12 +28,10 @@ app.set('view engine', 'hbs');
 
 // CHỈ CẦN THƯ MỤC views, KHÔNG ĐƯỢC THÊM layouts
 app.set('views', path.join(__dirname, 'views'));
-
 route(app);
 console.log('views path:', path.join(__dirname, 'views'));
 
 const port = process.env.PORT || 3000;
-app.use('/api', auth);
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
